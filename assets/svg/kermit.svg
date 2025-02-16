@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+    <!-- Kermit's head -->
+    <circle cx="100" cy="100" r="80" fill="#7fc142"/>
+    
+    <!-- Kermit's eyes -->
+    <circle cx="60" cy="60" r="20" fill="white"/>
+    <circle cx="140" cy="60" r="20" fill="white"/>
+    
+    <!-- Pupils -->
+    <circle cx="60" cy="60" r="8" fill="black"/>
+    <circle cx="140" cy="60" r="8" fill="black"/>
+    
+    <!-- Kermit's mouth -->
+    <path d="M40,120 Q100,170 160,120" stroke="black" stroke-width="5" fill="transparent"/>
+    
+    <!-- Kermit's tongue -->
+    <path d="M100,135 Q115,150 130,135" fill="red"/>
+    
+    <!-- Kermit's collar -->
+    <path d="M50,160 Q100,180 150,160 Q120,145 100,150 Q80,145 50,160" fill="#4d9f38"/>
+</svg>
