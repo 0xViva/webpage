@@ -31,4 +31,4 @@ tmp
 .task
 
 #style temporary files
-style/output.css
+/style/output.css
