@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
@@ -41,4 +41,3 @@ jobs:
             docker rm my-app || true &&
             docker run -d --name my-app -p 80:80 my-registry.com/my-app:latest
           "
-
