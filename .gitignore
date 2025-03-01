@@ -32,6 +32,3 @@ tmp
 
 #style temporary files
 /style/output.css
-
-# Generated Go files from templ files
-*_templ.go
