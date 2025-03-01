@@ -1,4 +1,4 @@
-module github.com/0xViva/portfolio-webpage
+module github.com/0xViva/personal-webpage
 
 go 1.24.0
 

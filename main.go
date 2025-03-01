@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/0xViva/portfolio-webpage/views"
+	"github.com/0xViva/personal-webpage/views"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo"
 )
@@ -17,7 +17,7 @@ func main() {
 	e.GET("/", homeHandler)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":3000"))
+	e.Logger.Fatal(e.Start(":8080"))
 }
 
 func homeHandler(c echo.Context) error {
