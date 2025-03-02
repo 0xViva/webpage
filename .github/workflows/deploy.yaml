@@ -31,8 +31,8 @@ jobs:
 
       - name: Tag and Push Docker Image to Docker Hub
         run: |
-          docker tag my-app:latest docker.io/${{ secrets.DOCKER_USERNAME }}/my-app:latest
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/my-app:latest
+          docker tag personal-webpage:latest docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
 
       - name: Setup SSH and Deploy to VPS
         env:
@@ -46,8 +46,9 @@ jobs:
 
           ssh webpage@"$VPS_IP" << 'EOF'
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_ACCESS_TOKEN }}"
-            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/my-app:latest
-            docker stop my-app || true
-            docker rm my-app || true
-            docker run -d --name my-app -p 80:80 docker.io/${{ secrets.DOCKER_USERNAME }}/my-app:latest
+            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
+            docker stop personal-webpage || true
+            docker rm personal-webpage || true
+            docker run -d --name my-app -p 8080:80 --restart unless-stopped docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
+
           EOF
