@@ -40,7 +40,7 @@ jobs:
           VPS_IP: ${{ secrets.VPS_IP }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$VPS_IP" >> ~/.ssh/known_hosts
 
@@ -50,5 +50,4 @@ jobs:
             docker stop personal-webpage || true
             docker rm personal-webpage || true
             docker run -d --name my-app -p 8080:80 --restart unless-stopped docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
-
           EOF
