@@ -50,4 +50,5 @@ jobs:
             docker stop personal-webpage || true
             docker rm personal-webpage || true
             docker run -d --name my-app -p 8080:80 --restart unless-stopped docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
+            
             EOF
