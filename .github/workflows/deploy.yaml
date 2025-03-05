@@ -44,7 +44,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$VPS_IP" >> ~/.ssh/known_hosts
 
-          ssh webpage@"$VPS_IP" << 'EOF'
+          ssh -v webpage@"$VPS_IP" << 'EOF'
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_ACCESS_TOKEN }}"
             docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/personal-webpage:latest
             docker stop personal-webpage || true
