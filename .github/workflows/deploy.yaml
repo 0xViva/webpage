@@ -49,6 +49,6 @@ jobs:
             docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
             docker stop webpage || true
             docker rm webpage || true
-            docker run -d --name webpage -p 8080:80 --restart unless-stopped docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
+            docker run -d --name webpage -p 80:8080 --restart unless-stopped docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
             
             EOF
