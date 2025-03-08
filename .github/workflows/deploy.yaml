@@ -31,24 +31,23 @@ jobs:
 
       - name: Tag and Push Docker Image to Docker Hub
         run: |
-          docker tag webpage:latest docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
+          docker tag webpage:latest ${{ secrets.DOCKER_USERNAME }}/webpage:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}:latest
 
-      - name: Setup SSH and Deploy to VPS
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          VPS_IP: ${{ secrets.VPS_IP }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$VPS_IP" >> ~/.ssh/known_hosts
+          - name: Setup SSH and Deploy to VPS
+          env:
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+            VPS_IP: ${{ secrets.VPS_IP }}
+          run: |
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H "$VPS_IP" >> ~/.ssh/known_hosts
 
-          ssh -v webpage@"$VPS_IP" << 'EOF'
-            docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_ACCESS_TOKEN }}"
-            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
-            docker stop webpage || true
-            docker rm webpage || true
-            docker run -d --name webpage -p 80:8080 --restart unless-stopped docker.io/${{ secrets.DOCKER_USERNAME }}/webpage:latest
-            
-            EOF
+            ssh -v webpage@"$VPS_IP" "
+              docker login -u '${{ secrets.DOCKER_USERNAME }}' -p '${{ secrets.DOCKER_ACCESS_TOKEN }}' &&
+              docker pull ${{ secrets.DOCKER_USERNAME }}/webpage:latest &&
+              docker stop webpage || true &&
+              docker rm webpage || true &&
+              docker run -d --name webpage -p 80:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/webpage:latest
+            ""
