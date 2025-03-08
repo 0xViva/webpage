@@ -23,12 +23,14 @@ jobs:
           docker build -t webpage:latest .
           docker images
 
-      - name: Log in to Docker Hub
+      - name: Log in and Push to Docker Hub
         env:
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker tag webpage:latest ${{ secrets.DOCKER_USERNAME }}/webpage:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/webpage:latest
 
       - name: Setup SSH and Deploy to VPS
         env:
