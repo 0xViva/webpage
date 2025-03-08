@@ -13,7 +13,7 @@ func main() {
 	//e.Static("/style", "style")
 	//e.Static("/assets", "assets")
 
-	e.Static("/static", "assets")
+	e.Static("/", "assets")
 
 	// Routes
 	e.GET("/", homeHandler)
