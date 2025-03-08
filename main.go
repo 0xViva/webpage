@@ -10,10 +10,8 @@ func main() {
 	e := echo.New()
 
 	// Serve static files
-	//e.Static("/style", "style")
-	//e.Static("/assets", "assets")
-
-	e.Static("/", "assets")
+	e.Static("/style", "style")
+	e.Static("/assets", "assets")
 
 	// Routes
 	e.GET("/", homeHandler)
