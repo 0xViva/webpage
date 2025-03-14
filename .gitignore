@@ -10,8 +10,10 @@
 build
 
 style/output.css
-views/**/*.go
+#ignore generated go components code
 components/**/*.go
+#ignore only the generated layout code, need views.go files to render them with echo.
+views/layout_templ.go
 
 # Test binary, built with `go test -c`
 *.test
