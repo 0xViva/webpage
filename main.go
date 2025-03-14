@@ -6,16 +6,10 @@ import (
 	"github.com/0xViva/webpage/views"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 func main() {
 	e := echo.New()
-
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	}))
 
 	// Serve static files
 	e.Static("/style", "style")
