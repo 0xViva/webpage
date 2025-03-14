@@ -1,6 +1,6 @@
-# Personal Portfolio Website
+# Simple Webpage
 
-A modern, responsive personal portfolio website built with Go and HTMX.
+A modern, responsive personal website built with Go, Echo and Templ.
 
 ## Tech Stack
 
