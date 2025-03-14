@@ -1,6 +1,6 @@
 # Simple Webpage
 
-A modern, responsive personal website built with Go, Echo and Templ.
+A modern, responsive personal website built with Go, Echo, Templ and TailwindCSS.
 
 ## Tech Stack
 
@@ -21,9 +21,27 @@ task dev
 ```
 
 Build the project:
+
+```sh
+task builk
+```
+
 Build Docker container:
 
+```sh
+task container container_name=<name> container_tag=<tag>
+```
+
 ## Project Structure
+```
+.
+├── assets/         # Static assets and SVG icons
+├── components/     # Reusable UI components 
+├── style/         # TailwindCSS config and styles
+├── views/         # Page templates
+├── main.go        # Entry point
+└── Dockerfile     # Container definition
+```
 
 ## Deployment
 
