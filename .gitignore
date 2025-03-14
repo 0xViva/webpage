@@ -29,6 +29,3 @@ tmp
 
 # task file temporary files
 .task
-
-#style temporary files
-/style/output.css

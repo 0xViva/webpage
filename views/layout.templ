@@ -1,32 +1,36 @@
 package views
 
 import (
-  "github.com/0xViva/personal-webpage/components"
+"github.com/0xViva/personal-webpage/components"
 )
 
 templ Layout(title string) {
-  <html>
-    <head>
-      <meta charset="UTF-8">  
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-      <link rel="stylesheet" href="style/output.css"></link>
-      <link rel="icon" href="assets/svg/kermit.svg" type="image/svg+xml">
-        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-      <title>{ title }</title>
-    </head>
-    <body class="bg-gray-800" hx-boost="true">
-    <div class="max-w-[50rem] flex flex-col mx-auto size-full">
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/style/output.css">
+  </link>
+  <link rel="icon" href="assets/svg/kermit.svg" type="image/svg+xml">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <title>{ title }</title>
+</head>
+
+<body class="bg-gray-800" hx-boost="true">
+  <div class="max-w-[50rem] flex flex-col mx-auto size-full">
     <!-- ========== HEADER ========== -->
     @components.Header()
     <!-- ========== END HEADER ========== -->
     <main id="content">
       { children... }
-      
-      </main>
-        <!-- ========== FOOTER ========== -->
-@components.Footer()
-  <!-- ========== END FOOTER ========== -->
-      </div>
-    </body>
-   </html>
-  }
+
+    </main>
+    <!-- ========== FOOTER ========== -->
+    @components.Footer()
+    <!-- ========== END FOOTER ========== -->
+  </div>
+</body>
+
+</html>
+}
