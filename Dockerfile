@@ -14,10 +14,11 @@ RUN ["templ", "generate"]
 FROM node:slim AS tailwind-stage
 WORKDIR /app
 COPY ./style ./style
+RUN apt-get update && apt-get install -y wget
 RUN wget https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
   && chmod +x tailwindcss-linux-x64 \
   && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
-RUN tailwindcss -i ./style/input.css -o ./style/output.css --minify
+RUN tailwindcss -i ./style/input.css -o ./style/output.css
 
 # Build the server binary
 FROM golang:1.24 AS build-stage
