@@ -4,11 +4,20 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Generate
+# Generate templ files
 FROM ghcr.io/a-h/templ:latest AS generate-stage
 COPY --chown=65532:65532 . /app
 WORKDIR /app
 RUN ["templ", "generate"]
+
+# Generate tailwind CSS
+FROM node:slim AS tailwind-stage
+WORKDIR /app
+COPY ./style ./style
+RUN wget https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+  && chmod +x tailwindcss-linux-x64 \
+  && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
+RUN tailwindcss -i ./style/input.css -o ./style/output.css --minify
 
 # Build the server binary
 FROM golang:1.24 AS build-stage
