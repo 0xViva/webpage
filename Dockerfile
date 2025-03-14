@@ -1,7 +1,7 @@
-# Fetch
-FROM golang:latest AS fetch-stage
-COPY go.mod go.sum /app/
+# Fetch dependencies
+FROM golang:1.24 AS fetch-stage
 WORKDIR /app
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Generate
@@ -10,21 +10,24 @@ COPY --chown=65532:65532 . /app
 WORKDIR /app
 RUN ["templ", "generate"]
 
-# Build
-FROM golang:latest AS build-stage
-COPY --from=generate-stage /app /app
+# Build the server binary
+FROM golang:1.24 AS builder
 WORKDIR /app
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/app
+COPY --from=fetch-stage /app /app 
+COPY --from=generate-stage /app /app  
+RUN CGO_ENABLED=0 GOOS=linux go build -o /server main.go
 
-# Verify that static files exist in the builder stage
+# Verify static files exist
 RUN ls -la /app/style
 
-# Deploy
-FROM gcr.io/distroless/base-debian12 AS deploy-stage
-WORKDIR /
-COPY --from=build-stage /app/app /app
-COPY --from=build-stage /app/style /style
-COPY --from=build-stage /app/assets /assets
-EXPOSE 8080
-USER nonroot:nonroot
-ENTRYPOINT ["/app"]
+# Deploy minimal image
+FROM gcr.io/distroless/base-debian11 AS final
+COPY --from=builder /server /server
+COPY --from=builder /app/style /style
+COPY --from=builder /app/assets /assets
+
+ENV PORT=8080
+EXPOSE $PORT
+
+ENTRYPOINT ["/server"]
+
