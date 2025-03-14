@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/0xViva/personal-webpage/views"
+	"github.com/0xViva/webpage/views"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo"
 )
