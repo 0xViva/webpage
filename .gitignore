@@ -9,6 +9,8 @@
 *.dylib
 build
 
+style/output.css
+
 # Test binary, built with `go test -c`
 *.test
 
