@@ -30,7 +30,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /server main.go
 FROM gcr.io/distroless/base-debian11 AS deploy-stage
 COPY --from=build-stage /server /server
 # include all static files since they're not embedded in the binary
-COPY --from=build-stage /app/style /style
+COPY --from=tailwind-stage /app/style /style
 COPY --from=build-stage /app/assets /assets
 ENV PORT=8080
 EXPOSE $PORT
