@@ -11,23 +11,19 @@ WORKDIR /app
 RUN ["templ", "generate"]
 
 # Build the server binary
-FROM golang:1.24 AS builder
+FROM golang:1.24 AS build-stage
 WORKDIR /app
 COPY --from=fetch-stage /app /app 
 COPY --from=generate-stage /app /app  
 RUN CGO_ENABLED=0 GOOS=linux go build -o /server main.go
 
-# Verify static files exist
-RUN ls -la /app/style
-
 # Deploy minimal image
-FROM gcr.io/distroless/base-debian11 AS final
-COPY --from=builder /server /server
-COPY --from=builder /app/style /style
-COPY --from=builder /app/assets /assets
-
+FROM gcr.io/distroless/base-debian11 AS deploy-stage
+COPY --from=build-stage /server /server
+# include all static files since they're not embedded in the binary
+COPY --from=build-stage /app/style /style
+COPY --from=build-stage /app/assets /assets
 ENV PORT=8080
 EXPOSE $PORT
-
 ENTRYPOINT ["/server"]
 
