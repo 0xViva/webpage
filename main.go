@@ -99,9 +99,11 @@ func contactHandler(c echo.Context) error {
 	// Configure email message
 	m := gomail.NewMessage()
 	hostname := getNameFromDomain(host)
-	fmt.Print(hostname)
-	m.SetHeader("From", fmt.Sprintf("%s <%s>", hostname, toEmail))
-	m.SetHeader("To", fmt.Sprintf("%s <%s>", hostname, toEmail))
+	if hostname == "August" {
+		hostname = "augustg"
+	}
+	m.SetHeader("From", fmt.Sprintf("%s <%s>", hostname+".dev", toEmail))
+	m.SetHeader("To", fmt.Sprintf("%s <%s>", hostname+".dev", toEmail))
 	m.SetAddressHeader("Cc", email, name)
 	m.SetHeader("Subject", fmt.Sprintf("Project Proposal from %s - %s", name, projectType))
 	m.SetBody("text/html", emailBody)
