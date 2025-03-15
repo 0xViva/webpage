@@ -1,6 +1,6 @@
-# Simple Webpage
+# Personal Webpage
 
-A modern, responsive personal webpage built with Go, Echo, Templ and TailwindCSS.
+A modern, responsive personal webpage built with Go, Echo, Templ, GoMail and TailwindCSS.
 
 ## Tech Stack
 
@@ -33,10 +33,11 @@ task container container_name=<name> container_tag=<tag>
 ```
 
 ## Project Structure
+
 ```
 .
 ├── assets/         # Static assets and SVG icons
-├── components/     # Reusable UI components 
+├── components/     # Reusable UI components
 ├── style/         # TailwindCSS config and styles
 ├── views/         # Page templates
 ├── main.go        # Entry point

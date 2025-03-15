@@ -1,6 +1,6 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
+// This file is used to ignore files and directories in the repository
+
+.env
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -10,6 +10,7 @@
 build
 
 style/output.css
+
 #ignore generated go components code
 components/**/*.go
 #ignore only the generated layout code, need views.go files to render them with echo.

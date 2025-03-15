@@ -1,0 +1,74 @@
+package components
+
+templ Form () {
+<div id="contact-form" class="text-center justify-center py-6 px-4">
+  <h2 class="text-xl font-semibold text-white mb-4">Dev Request</h2>
+  <form class="flex flex-col gap-2 text-white mx-auto max-w-2xl" hx-post="/contact" hx-swap="outerHTML" hx-target="#contact-form">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div class="flex flex-col">
+        <label for="name" class="text-sm mb-1">Name</label>
+        <input type="text" id="name" name="name" required 
+          class="w-full text-white px-3 py-1.5 rounded-full bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+      </div>
+
+      <div class="flex flex-col">
+        <label for="email" class="text-sm mb-1">Email</label>
+        <input type="email" id="email" name="email" required 
+          class="w-full text-white px-3 py-1.5 rounded-full bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+      </div>
+
+      <div class="flex flex-col">
+        <label for="company" class="text-sm mb-1">Company (optional)</label>
+        <input type="text" id="company" name="company" 
+          class="w-full text-white px-3 py-1.5 rounded-full bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+      <div class="flex flex-col">
+        <label for="project-type" class="text-sm mb-1">Project Type</label>
+        <input type="text" id="project-type" name="project-type" required 
+          placeholder="e.g., Web Development"
+          class="w-full text-white px-3 py-1.5 rounded-full bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+      </div>
+
+      <div class="flex flex-col">
+        <label for="budget" class="text-sm mb-1">Budget</label>
+        <select id="budget" name="budget" required 
+          class="w-full text-white px-3 py-1.5 rounded-full bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+          <option value="">Select budget</option>
+          <option value="small">$1k - $5k</option>
+          <option value="medium">$5k - $15k</option>
+          <option value="large">$15k+</option>
+          <option value="hourly">Hourly Rate</option>
+          <option value="discuss">To Discuss</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col">
+        <label for="timeline" class="text-sm mb-1">Timeline</label>
+        <select id="timeline" name="timeline" required 
+          class="w-full text-white px-3 py-1.5 rounded-full bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+          <option value="">Select timeline</option>
+          <option value="urgent">ASAP/Urgent</option>
+          <option value="1month">Within 1 month</option>
+          <option value="3months">1-3 months</option>
+          <option value="flexible">Flexible</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex flex-col mt-2">
+      <label for="message" class="text-sm mb-1">Project Description</label>
+      <textarea id="message" name="message" required rows="4"
+        placeholder="Please describe your project requirements and goals." 
+        class="w-full text-white px-3 py-2 rounded-xl bg-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"></textarea>
+    </div>
+
+    <button type="submit" 
+      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-full mt-4 transition-colors duration-200">
+      Submit
+    </button>
+  </form>
+</div>
+}
