@@ -106,6 +106,12 @@ func contactHandler(c echo.Context) error {
 	m.SetHeader("To", fmt.Sprintf("%s <%s>", hostname+".dev", toEmail))
 	m.SetAddressHeader("Cc", email, name)
 	m.SetHeader("Subject", fmt.Sprintf("Project Proposal from %s - %s", name, projectType))
+
+	// Add proper Message-ID for email threading
+	domain := strings.Split(toEmail, "@")[1]
+	messageID := fmt.Sprintf("<%d.project-request@%s>", time.Now().UnixNano(), domain)
+	m.SetHeader("Message-ID", messageID)
+
 	m.SetBody("text/html", emailBody)
 
 	// Send email
