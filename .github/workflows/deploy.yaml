@@ -45,9 +45,13 @@ jobs:
           ssh-keyscan -H "$VPS_IP" >> ~/.ssh/known_hosts
 
           ssh -v webpage@"$VPS_IP" "
-            docker login -u '${{ secrets.DOCKER_USERNAME }}' -p '${{ secrets.DOCKER_ACCESS_TOKEN }}' &&
-            docker pull ${{ secrets.DOCKER_USERNAME }}/webpage:latest &&
-            docker stop webpage || true &&
-            docker rm webpage || true &&
-            docker run -e TO_EMAIL=${{ secrets.TO_EMAIL }} -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} -e GITHUB_TOKEN=${{ secrets.PAT }} -d --name webpage -p 80:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/webpage:latest
-          "
+          docker login -u '${{ secrets.DOCKER_USERNAME }}' -p '${{ secrets.DOCKER_ACCESS_TOKEN }}' &&
+          docker pull ${{ secrets.DOCKER_USERNAME }}/webpage:latest &&
+          docker stop webpage || true &&
+          docker rm webpage || true &&
+          docker run \
+          -e TO_EMAIL=\"${{ secrets.TO_EMAIL }}\" \
+          -e EMAIL_PASSWORD=\"${{ secrets.EMAIL_PASSWORD }}\" \
+          -e GITHUB_TOKEN=\"${{ secrets.PAT }}\" \
+          -d --name webpage -p 80:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/webpage:latest
+           "
