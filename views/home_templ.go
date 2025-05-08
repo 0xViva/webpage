@@ -8,8 +8,8 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/0xViva/webpage/models"     // Import models package
-import "github.com/0xViva/webpage/components" // Import components package
+import "github.com/0xViva/webpage/models"
+import "github.com/0xViva/webpage/components"
 
 func Home(title string, name string, repos []models.GitHubRepo) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
