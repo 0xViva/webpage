@@ -49,5 +49,5 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/webpage:latest &&
             docker stop webpage || true &&
             docker rm webpage || true &&
-            docker run -e TO_EMAIL=${{ secrets.TO_EMAIL }} -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} -d --name webpage -p 80:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/webpage:latest
+            docker run -e TO_EMAIL=${{ secrets.TO_EMAIL }} -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} -e GITHUB_TOKEN=${{ secrets.PAT }} -d --name webpage -p 80:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/webpage:latest
           "
