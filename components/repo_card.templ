@@ -18,7 +18,7 @@ templ RepoCard(repo models.GitHubRepo) {
 		</a>
 	</h2>
 	<p class="text-gray-400 mb-4">{ repo.Description }</p>
-	<p class="text-gray-500 text-sm mb-4">Last updated: { repo.UpdatedAt.Format("06-01-02 15:04") }</p>
+	<p class="text-gray-500 text-sm mb-4">Updated: { repo.UpdatedAt.Format("06-01-02 15:04") }</p>
 	//<h3 class="text-lg font-medium text-white mb-2">Commits:</h3>
 	<ul class="list-disc list-inside text-gray-400">
 		for _, commit := range repo.Commits {
