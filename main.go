@@ -1,23 +1,29 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/0xViva/webpage/components"
+	"github.com/0xViva/webpage/models"
 	"github.com/0xViva/webpage/views"
 	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/gomail.v2"
+	"io"
 )
 
 var (
 	toEmail       string
 	EmailPassword string
+	githubToken   string
 )
 
 func main() {
@@ -26,20 +32,16 @@ func main() {
 	godotenv.Load()
 
 	toEmail = os.Getenv("TO_EMAIL")
-	EmailPassword = os.Getenv("EMAIL_PASSWORD")
+	githubToken = os.Getenv("GITHUB_TOKEN")
 
-	// Middleware
 	e.Use(middleware.Logger())
-	// Serve static files
 	e.Static("/style", "style")
 	e.Static("/assets", "assets")
 
-	// Routes
 	e.GET("/", homeHandler)
 	e.GET("/form", formHandler)
 	e.POST("/contact", contactHandler)
 
-	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
@@ -48,7 +50,13 @@ func homeHandler(c echo.Context) error {
 	title := getNameFromDomain(host) + "'s Website"
 	name := "August"
 
-	return render(c, views.Home(title, name))
+	repos, err := getLatestRepos("0xViva", githubToken)
+	if err != nil {
+		c.Logger().Errorf("Failed to fetch GitHub repos: %v", err)
+		return render(c, views.Home(title, name, nil))
+	}
+
+	return render(c, views.Home(title, name, repos))
 }
 
 func formHandler(c echo.Context) error {
@@ -65,7 +73,6 @@ func contactHandler(c echo.Context) error {
 	timeline := c.FormValue("timeline")
 	message := c.FormValue("message")
 
-	// Create a professional HTML email template
 	emailBody := fmt.Sprintf(`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">Dev Request</h2>
@@ -96,7 +103,6 @@ func contactHandler(c echo.Context) error {
         </div>
     `, name, email, company, projectType, budget, timeline, message, host, time.Now().Format("January 2, 2006 at 15:04 MST"))
 
-	// Configure email message
 	m := gomail.NewMessage()
 	hostname := getNameFromDomain(host)
 	if hostname == "August" {
@@ -107,14 +113,12 @@ func contactHandler(c echo.Context) error {
 	m.SetAddressHeader("Cc", email, name)
 	m.SetHeader("Subject", fmt.Sprintf("Project Proposal from %s - %s", name, projectType))
 
-	// Add proper Message-ID for email threading
 	domain := strings.Split(toEmail, "@")[1]
 	messageID := fmt.Sprintf("<%d.project-request@%s>", time.Now().UnixNano(), domain)
 	m.SetHeader("Message-ID", messageID)
 
 	m.SetBody("text/html", emailBody)
 
-	// Send email
 	d := gomail.NewDialer("smtp.gmail.com", 587, toEmail, EmailPassword)
 
 	if err := d.DialAndSend(m); err != nil {
@@ -123,6 +127,88 @@ func contactHandler(c echo.Context) error {
 	}
 
 	return render(c, components.Submitted(name, email, company, projectType, budget, timeline, message))
+}
+
+func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
+	client := &http.Client{Timeout: 30 * time.Second}
+
+	req, err := http.NewRequest("GET", "https://api.github.com/user/repos?sort=updated&direction=desc&per_page=3", nil)
+	if err != nil {
+		log.Printf("failed to create repos request: %v", err)
+		return nil, fmt.Errorf("failed to create repos request: %w", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	req.Header.Set("User-Agent", "personal-webpage")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("failed to fetch repos: %v", err)
+		return nil, fmt.Errorf("failed to fetch repos: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			log.Printf("github api returned status code %d, failed to read response body: %v", resp.StatusCode, readErr)
+			return nil, fmt.Errorf("github api returned status code %d, failed to read response body: %w", resp.StatusCode, readErr)
+		}
+		log.Printf("github api returned status code %d, body: %s", resp.StatusCode, string(bodyBytes))
+		return nil, fmt.Errorf("github api returned status code %d, body: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	var repos []struct {
+		Name        string    `json:"name"`
+		HTMLURL     string    `json:"html_url"`
+		Description string    `json:"description"`
+		UpdatedAt   time.Time `json:"updated_at"`
+		Visibility  string    `json:"visibility"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
+		log.Printf("failed to decode repos response: %v", err)
+		return nil, fmt.Errorf("failed to decode repos response: %w", err)
+	}
+
+	githubRepos := make([]models.GitHubRepo, 0, len(repos))
+	for _, repo := range repos {
+		commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=3", username, repo.Name), nil)
+		if err != nil {
+			log.Printf("failed to create commits request for %s: %v", repo.Name, err)
+			return nil, fmt.Errorf("failed to create commits request for %s: %w", repo.Name, err)
+		}
+		commitReq.Header.Set("Authorization", "Bearer "+token)
+
+		commitResp, err := client.Do(commitReq)
+		if err != nil {
+			log.Printf("failed to fetch commits for %s: %v", repo.Name, err)
+			return nil, fmt.Errorf("failed to fetch commits for %s: %w", repo.Name, err)
+		}
+		defer commitResp.Body.Close()
+
+		if commitResp.StatusCode != http.StatusOK {
+			log.Printf("github api returned status code %d for commits of %s", commitResp.StatusCode, repo.Name)
+			return nil, fmt.Errorf("github api returned status code %d for commits of %s", commitResp.StatusCode, repo.Name)
+		}
+
+		var commits []models.GitHubCommit
+		if err := json.NewDecoder(commitResp.Body).Decode(&commits); err != nil {
+			log.Printf("failed to decode commits response for %s: %v", repo.Name, err)
+			return nil, fmt.Errorf("failed to decode commits response for %s: %w", repo.Name, err)
+		}
+
+		githubRepos = append(githubRepos, models.GitHubRepo{
+			Name:        repo.Name,
+			HTMLURL:     repo.HTMLURL,
+			Description: repo.Description,
+			UpdatedAt:   repo.UpdatedAt,
+			Visibility:  repo.Visibility,
+			Commits:     commits,
+		})
+	}
+
+	return githubRepos, nil
 }
 
 func render(ctx echo.Context, cmp templ.Component) error {
