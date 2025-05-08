@@ -32,6 +32,7 @@ func main() {
 	godotenv.Load()
 
 	toEmail = os.Getenv("TO_EMAIL")
+	EmailPassword = os.Getenv("EMAIL_PASSWORD")
 	githubToken = os.Getenv("GITHUB_TOKEN")
 
 	e.Use(middleware.Logger())
