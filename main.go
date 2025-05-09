@@ -193,10 +193,64 @@ func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
 			return nil, fmt.Errorf("github api returned status code %d for commits of %s", commitResp.StatusCode, repo.Name)
 		}
 
-		var commits []models.GitHubCommit
-		if err := json.NewDecoder(commitResp.Body).Decode(&commits); err != nil {
+		var baseCommits []struct {
+			SHA     string `json:"sha"`
+			HTMLURL string `json:"html_url"`
+			Commit  struct {
+				Message string `json:"message"`
+				Author  struct {
+					Name string    `json:"name"`
+					Date time.Time `json:"date"`
+				} `json:"author"`
+			} `json:"commit"`
+		}
+		if err := json.NewDecoder(commitResp.Body).Decode(&baseCommits); err != nil {
 			log.Printf("failed to decode commits response for %s: %v", repo.Name, err)
 			return nil, fmt.Errorf("failed to decode commits response for %s: %w", repo.Name, err)
+		}
+
+		var enrichedCommits []models.GitHubCommit
+		for _, base := range baseCommits {
+			// Fetch commit details for stats
+			commitDetailsReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", username, repo.Name, base.SHA), nil)
+			if err != nil {
+				log.Printf("failed to create commit detail request for %s: %v", base.SHA, err)
+				continue
+			}
+			commitDetailsReq.Header.Set("Authorization", "Bearer "+token)
+
+			commitDetailsResp, err := client.Do(commitDetailsReq)
+			if err != nil {
+				log.Printf("failed to fetch commit detail for %s: %v", base.SHA, err)
+				continue
+			}
+			defer commitDetailsResp.Body.Close()
+
+			if commitDetailsResp.StatusCode != http.StatusOK {
+				log.Printf("github api returned status code %d for commit %s", commitDetailsResp.StatusCode, base.SHA)
+				continue
+			}
+
+			var detail struct {
+				Stats struct {
+					Additions int `json:"additions"`
+					Deletions int `json:"deletions"`
+				} `json:"stats"`
+			}
+			if err := json.NewDecoder(commitDetailsResp.Body).Decode(&detail); err != nil {
+				log.Printf("failed to decode commit detail for %s: %v", base.SHA, err)
+				continue
+			}
+
+			enrichedCommits = append(enrichedCommits, models.GitHubCommit{
+				SHA:       base.SHA,
+				HTMLURL:   base.HTMLURL,
+				Message:   base.Commit.Message,
+				Additions: detail.Stats.Additions,
+				Deletions: detail.Stats.Deletions,
+				Author:    base.Commit.Author,
+			})
+
 		}
 
 		githubRepos = append(githubRepos, models.GitHubRepo{
@@ -205,11 +259,12 @@ func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
 			Description: repo.Description,
 			UpdatedAt:   repo.UpdatedAt,
 			Visibility:  repo.Visibility,
-			Commits:     commits,
+			Commits:     enrichedCommits,
 		})
 	}
 
 	return githubRepos, nil
+
 }
 
 func render(ctx echo.Context, cmp templ.Component) error {

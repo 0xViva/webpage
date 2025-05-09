@@ -12,13 +12,13 @@ type GitHubRepo struct {
 }
 
 type GitHubCommit struct {
-	SHA     string `json:"sha"`
-	HTMLURL string `json:"html_url"`
-	Commit  struct {
-		Message string `json:"message"`
-		Author  struct {
-			Name string    `json:"name"`
-			Date time.Time `json:"date"`
-		} `json:"author"`
-	} `json:"commit"`
+	SHA       string `json:"sha"`
+	HTMLURL   string `json:"html_url"`
+	Message   string `json:"message"`
+	Additions int    `json:"additions"`
+	Deletions int    `json:"deletions"`
+	Author    struct {
+		Name string    `json:"name"`
+		Date time.Time `json:"date"`
+	} `json:"author"`
 }
