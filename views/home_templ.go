@@ -8,10 +8,7 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/0xViva/webpage/models"
-import "github.com/0xViva/webpage/components"
-
-func Home(title string, name string, repos []models.GitHubRepo) templ.Component {
+func Home(title string, name string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -51,33 +48,13 @@ func Home(title string, name string, repos []models.GitHubRepo) templ.Component 
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 9, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 6, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h1><div class=\"mt-5 text-lg text-gray-300\"><p>a software developer based in Norway. I'm passionate about building software that is both functional and neat. Check out my GitHub to see what I'm currently working on!</p></div><div class=\"mt-5 flex flex-col justify-center items-center gap-2 sm:flex-row sm:gap-3\"><a class=\"w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none\" target=\"parent\" href=\"https://github.com/0xViva\"><img src=\"assets/svg/github.svg\" alt=\"github\" width=\"25px\"> GitHub</a> <button class=\"w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:pointer-events-none\" hx-get=\"/form\" hx-target=\"#form-container\" hx-swap=\"innerHTML\">Dev Request</button></div><div id=\"form-container\" class=\"mt-8\"></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(repos) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"mt-10 text-left\"><h2 class=\"text-2xl font-bold text-white mb-6 text-center\">Latest Projects</h2><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, repo := range repos {
-					templ_7745c5c3_Err = components.RepoCard(repo).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h1><div class=\"mt-5 text-lg text-gray-300\"><p>a software developer based in Norway. I'm passionate about building software that is both functional and neat. Check out my GitHub to see what I'm currently working on!</p></div><div class=\"mt-5 flex flex-col justify-center items-center gap-2 sm:flex-row sm:gap-3\"><a class=\"w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-white text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none\" target=\"parent\" href=\"https://github.com/0xViva\"><img src=\"assets/svg/github.svg\" alt=\"github\" width=\"25px\"> GitHub</a> <button class=\"w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:pointer-events-none\" hx-get=\"/form\" hx-target=\"#form-container\" hx-swap=\"innerHTML\">Dev Request</button></div><div id=\"form-container\" class=\"mt-8\"></div><div id=\"repos\" hx-get=\"/fetch-repos\" hx-trigger=\"load\" hx-target=\"#repos\"><button type=\"button\" class=\"bg-indigo-500 text-white\" disabled><svg class=\"mr-3 size-5 animate-spin text-white\" viewBox=\"0 0 24 24\"></svg> Loading…</button></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

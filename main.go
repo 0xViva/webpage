@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/0xViva/webpage/components"
-	"github.com/0xViva/webpage/models"
 	"github.com/0xViva/webpage/views"
 	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
@@ -42,7 +41,7 @@ func main() {
 	e.GET("/", homeHandler)
 	e.GET("/form", formHandler)
 	e.POST("/contact", contactHandler)
-
+	e.GET("/fetch-repos", fetchReposHandler)
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
@@ -51,15 +50,17 @@ func homeHandler(c echo.Context) error {
 	title := getNameFromDomain(host) + "'s Website"
 	name := "August"
 
+	return render(c, views.Home(title, name))
+
+}
+func fetchReposHandler(c echo.Context) error {
 	repos, err := getLatestRepos("0xViva", githubToken)
 	if err != nil {
 		c.Logger().Errorf("Failed to fetch GitHub repos: %v", err)
-		return render(c, views.Home(title, name, nil))
+		return render(c, components.RepoContainer(nil))
 	}
-
-	return render(c, views.Home(title, name, repos))
+	return render(c, components.RepoContainer(repos))
 }
-
 func formHandler(c echo.Context) error {
 	return render(c, components.Form())
 }
@@ -130,7 +131,7 @@ func contactHandler(c echo.Context) error {
 	return render(c, components.Submitted(name, email, company, projectType, budget, timeline, message))
 }
 
-func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
+func getLatestRepos(username, token string) ([]components.GitHubRepo, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
 
 	req, err := http.NewRequest("GET", "https://api.github.com/user/repos?sort=updated&direction=desc&per_page=3", nil)
@@ -172,7 +173,7 @@ func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
 		return nil, fmt.Errorf("failed to decode repos response: %w", err)
 	}
 
-	githubRepos := make([]models.GitHubRepo, 0, len(repos))
+	githubRepos := make([]components.GitHubRepo, 0, len(repos))
 	for _, repo := range repos {
 		commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=3", username, repo.Name), nil)
 		if err != nil {
@@ -209,7 +210,7 @@ func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
 			return nil, fmt.Errorf("failed to decode commits response for %s: %w", repo.Name, err)
 		}
 
-		var enrichedCommits []models.GitHubCommit
+		var enrichedCommits []components.GitHubCommit
 		for _, base := range baseCommits {
 			// Fetch commit details for stats
 			commitDetailsReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", username, repo.Name, base.SHA), nil)
@@ -242,7 +243,7 @@ func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
 				continue
 			}
 
-			enrichedCommits = append(enrichedCommits, models.GitHubCommit{
+			enrichedCommits = append(enrichedCommits, components.GitHubCommit{
 				SHA:       base.SHA,
 				HTMLURL:   base.HTMLURL,
 				Message:   base.Commit.Message,
@@ -253,7 +254,7 @@ func getLatestRepos(username, token string) ([]models.GitHubRepo, error) {
 
 		}
 
-		githubRepos = append(githubRepos, models.GitHubRepo{
+		githubRepos = append(githubRepos, components.GitHubRepo{
 			Name:        repo.Name,
 			HTMLURL:     repo.HTMLURL,
 			Description: repo.Description,

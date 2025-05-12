@@ -1,53 +1,46 @@
 package components
 
-import (
-	"github.com/0xViva/webpage/models"
-	"strconv"
-)
+import "strconv"
 
-templ RepoCard(repo models.GitHubRepo) {
-	<div class="bg-gray-800/70 rounded-lg shadow-lg border border-gray-700 p-6 mb-6 relative">
-		<img src="/assets/svg/git.svg" alt="GitHub" class="absolute top-4 right-4 w-6 h-6"/>
-		<h2 class="text-xl font-semibold text-white mb-2">
-			<a href={ templ.SafeURL(repo.HTMLURL) } target="_blank" rel="noopener noreferrer" class="hover:underline">
-				{ repo.Name }
-				<span class="text-gray-500 text-md">
-					if repo.Visibility == "private" {
-						(Private)
+templ RepoCard(repo GitHubRepo) {
+<div class="bg-gray-800/70 rounded-lg shadow-lg border border-gray-700 p-6 mb-6 relative">
+	<img src="/assets/svg/git.svg" alt="GitHub" class="absolute top-4 right-4 w-6 h-6" />
+	<h2 class="text-xl font-semibold text-white mb-2">
+		<a href={ templ.SafeURL(repo.HTMLURL) } target="_blank" rel="noopener noreferrer" class="hover:underline">
+			{ repo.Name }
+			<span class="text-gray-500 text-md">
+				if repo.Visibility == "private" {
+				(Private)
+				} else {
+				(Public)
+				}
+			</span>
+		</a>
+	</h2>
+	<p class="text-gray-400 mb-4">{ repo.Description }</p>
+	<p class="text-gray-500 text-sm mb-4">Updated: { repo.UpdatedAt.Format("06-01-02 15:04") }</p>
+	//<h3 class="text-lg font-medium text-white mb-2">Commits:</h3>
+	<ul class="space-y-2 text-gray-400">
+		for _, commit := range repo.Commits {
+		<li class="flex items-start">
+			<img src="/assets/svg/commit.svg" alt="commit icon" class="w-4 h-4 mt-1" />
+			<div>
+				<a href={ templ.SafeURL(commit.HTMLURL) } target="_blank" rel="noopener noreferrer"
+					class="hover:underline">
+					if len(commit.Message) > 30 {
+					{ commit.Message[:29] }...
 					} else {
-						(Public)
+					{ commit.Message }
 					}
-				</span>
-			</a>
-		</h2>
-		<p class="text-gray-400 mb-4">{ repo.Description }</p>
-		<p class="text-gray-500 text-sm mb-4">Updated: { repo.UpdatedAt.Format("06-01-02 15:04") }</p>
-		//<h3 class="text-lg font-medium text-white mb-2">Commits:</h3>
-		<ul class="space-y-2 text-gray-400">
-			for _, commit := range repo.Commits {
-				<li class="flex items-start">
-					<img src="/assets/svg/commit.svg" alt="commit icon" class="w-4 h-4 mt-1"/>
-					<div>
-						<a
-							href={ templ.SafeURL(commit.HTMLURL) }
-							target="_blank"
-							rel="noopener noreferrer"
-							class="hover:underline"
-						>
-							if len(commit.Message) > 30 {
-								{ commit.Message[:29] }...
-							} else {
-								{ commit.Message }
-							}
-						</a>
-						<div class="text-gray-500 text-sm">
-							({ commit.SHA[:7] }) <span class="text-green-600">+{ strconv.Itoa(commit.Additions) }</span>
-							<span class="text-red-600">-{ strconv.Itoa(commit.Deletions) }</span>
-						</div>
-					</div>
-				</li>
-			}
-		</ul>
-		<img src="/assets/svg/repo.svg" alt="Git" class="absolute bottom-4 right-4 w-10 w-10"/>
-	</div>
+				</a>
+				<div class="text-gray-500 text-sm">
+					({ commit.SHA[:7] }) <span class="text-green-600">+{ strconv.Itoa(commit.Additions) }</span>
+					<span class="text-red-600">-{ strconv.Itoa(commit.Deletions) }</span>
+				</div>
+			</div>
+		</li>
+		}
+	</ul>
+	<img src="/assets/svg/repo.svg" alt="Git" class="absolute bottom-4 right-4 w-10 w-10" />
+</div>
 }
