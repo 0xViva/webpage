@@ -54,7 +54,7 @@ func homeHandler(c echo.Context) error {
 
 }
 func fetchReposHandler(c echo.Context) error {
-	repos, err := getLatestRepos("0xViva", githubToken)
+	repos, err := getLatestRepos(githubToken)
 	if err != nil {
 		c.Logger().Errorf("Failed to fetch GitHub repos: %v", err)
 		return render(c, components.RepoContainer(nil))
@@ -131,7 +131,7 @@ func contactHandler(c echo.Context) error {
 	return render(c, components.Submitted(name, email, company, projectType, budget, timeline, message))
 }
 
-func getLatestRepos(username, token string) ([]components.GitHubRepo, error) {
+func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
 
 	req, err := http.NewRequest("GET", "https://api.github.com/user/repos?sort=updated&direction=desc&per_page=3", nil)
@@ -161,13 +161,17 @@ func getLatestRepos(username, token string) ([]components.GitHubRepo, error) {
 		return nil, fmt.Errorf("github api returned status code %d, body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
-	var repos []struct {
+	repos := []struct {
 		Name        string    `json:"name"`
+		FullName    string    `json:"full_name"`
 		HTMLURL     string    `json:"html_url"`
 		Description string    `json:"description"`
 		UpdatedAt   time.Time `json:"updated_at"`
 		Visibility  string    `json:"visibility"`
-	}
+		Owner       struct {
+			Login string `json:"login"`
+		} `json:"owner"`
+	}{}
 	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
 		log.Printf("failed to decode repos response: %v", err)
 		return nil, fmt.Errorf("failed to decode repos response: %w", err)
@@ -175,7 +179,7 @@ func getLatestRepos(username, token string) ([]components.GitHubRepo, error) {
 
 	githubRepos := make([]components.GitHubRepo, 0, len(repos))
 	for _, repo := range repos {
-		commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=3", username, repo.Name), nil)
+		commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=3", repo.Owner.Login, repo.Name), nil)
 		if err != nil {
 			log.Printf("failed to create commits request for %s: %v", repo.Name, err)
 			return nil, fmt.Errorf("failed to create commits request for %s: %w", repo.Name, err)
@@ -213,7 +217,7 @@ func getLatestRepos(username, token string) ([]components.GitHubRepo, error) {
 		var enrichedCommits []components.GitHubCommit
 		for _, base := range baseCommits {
 			// Fetch commit details for stats
-			commitDetailsReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", username, repo.Name, base.SHA), nil)
+			commitDetailsReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", repo.Owner.Login, repo.Name, base.SHA), nil)
 			if err != nil {
 				log.Printf("failed to create commit detail request for %s: %v", base.SHA, err)
 				continue
