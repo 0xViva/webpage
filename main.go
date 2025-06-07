@@ -3,12 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"strings"
-	"time"
-
 	"github.com/0xViva/webpage/components"
 	"github.com/0xViva/webpage/views"
 	"github.com/a-h/templ"
@@ -17,6 +11,12 @@ import (
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/gomail.v2"
 	"io"
+	"log"
+	"net/http"
+	"os"
+	"sort"
+	"strings"
+	"time"
 )
 
 var (
@@ -134,14 +134,14 @@ func contactHandler(c echo.Context) error {
 func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
 
-	req, err := http.NewRequest("GET", "https://api.github.com/user/repos?sort=updated&direction=desc&per_page=3", nil)
+	req, err := http.NewRequest("GET",
+		"https://api.github.com/user/repos?affiliation=owner,collaborator,organization_member&sort=updated&direction=desc&per_page=3", nil)
 	if err != nil {
 		log.Printf("failed to create repos request: %v", err)
 		return nil, fmt.Errorf("failed to create repos request: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+token)
-
 	req.Header.Set("User-Agent", "personal-webpage")
 
 	resp, err := client.Do(req)
@@ -152,16 +152,12 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, readErr := io.ReadAll(resp.Body)
-		if readErr != nil {
-			log.Printf("github api returned status code %d, failed to read response body: %v", resp.StatusCode, readErr)
-			return nil, fmt.Errorf("github api returned status code %d, failed to read response body: %w", resp.StatusCode, readErr)
-		}
+		bodyBytes, _ := io.ReadAll(resp.Body)
 		log.Printf("github api returned status code %d, body: %s", resp.StatusCode, string(bodyBytes))
 		return nil, fmt.Errorf("github api returned status code %d, body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
-	repos := []struct {
+	var repos []struct {
 		Name        string    `json:"name"`
 		FullName    string    `json:"full_name"`
 		HTMLURL     string    `json:"html_url"`
@@ -171,7 +167,7 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 		Owner       struct {
 			Login string `json:"login"`
 		} `json:"owner"`
-	}{}
+	}
 	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
 		log.Printf("failed to decode repos response: %v", err)
 		return nil, fmt.Errorf("failed to decode repos response: %w", err)
@@ -179,83 +175,113 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 
 	githubRepos := make([]components.GitHubRepo, 0, len(repos))
 	for _, repo := range repos {
-		commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=3", repo.Owner.Login, repo.Name), nil)
+		// Fetch all branches
+		branchesReq, _ := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/branches", repo.Owner.Login, repo.Name), nil)
+		branchesReq.Header.Set("Authorization", "Bearer "+token)
+
+		branchesResp, err := client.Do(branchesReq)
 		if err != nil {
-			log.Printf("failed to create commits request for %s: %v", repo.Name, err)
-			return nil, fmt.Errorf("failed to create commits request for %s: %w", repo.Name, err)
+			log.Printf("failed to fetch branches for %s: %v", repo.Name, err)
+			continue
 		}
-		commitReq.Header.Set("Authorization", "Bearer "+token)
+		defer branchesResp.Body.Close()
 
-		commitResp, err := client.Do(commitReq)
-		if err != nil {
-			log.Printf("failed to fetch commits for %s: %v", repo.Name, err)
-			return nil, fmt.Errorf("failed to fetch commits for %s: %w", repo.Name, err)
+		var branches []struct {
+			Name string `json:"name"`
 		}
-		defer commitResp.Body.Close()
-
-		if commitResp.StatusCode != http.StatusOK {
-			log.Printf("github api returned status code %d for commits of %s", commitResp.StatusCode, repo.Name)
-			return nil, fmt.Errorf("github api returned status code %d for commits of %s", commitResp.StatusCode, repo.Name)
-		}
-
-		var baseCommits []struct {
-			SHA     string `json:"sha"`
-			HTMLURL string `json:"html_url"`
-			Commit  struct {
-				Message string `json:"message"`
-				Author  struct {
-					Name string    `json:"name"`
-					Date time.Time `json:"date"`
-				} `json:"author"`
-			} `json:"commit"`
-		}
-		if err := json.NewDecoder(commitResp.Body).Decode(&baseCommits); err != nil {
-			log.Printf("failed to decode commits response for %s: %v", repo.Name, err)
-			return nil, fmt.Errorf("failed to decode commits response for %s: %w", repo.Name, err)
+		if err := json.NewDecoder(branchesResp.Body).Decode(&branches); err != nil {
+			log.Printf("failed to decode branches for %s: %v", repo.Name, err)
+			continue
 		}
 
 		var enrichedCommits []components.GitHubCommit
-		for _, base := range baseCommits {
-			// Fetch commit details for stats
-			commitDetailsReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", repo.Owner.Login, repo.Name, base.SHA), nil)
+
+		for _, branch := range branches {
+			commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s&per_page=3", repo.Owner.Login, repo.Name, branch.Name), nil)
 			if err != nil {
-				log.Printf("failed to create commit detail request for %s: %v", base.SHA, err)
+				log.Printf("failed to create commits request for %s on branch %s: %v", repo.Name, branch.Name, err)
 				continue
 			}
-			commitDetailsReq.Header.Set("Authorization", "Bearer "+token)
+			commitReq.Header.Set("Authorization", "Bearer "+token)
 
-			commitDetailsResp, err := client.Do(commitDetailsReq)
+			commitResp, err := client.Do(commitReq)
 			if err != nil {
-				log.Printf("failed to fetch commit detail for %s: %v", base.SHA, err)
+				log.Printf("failed to fetch commits for %s on branch %s: %v", repo.Name, branch.Name, err)
 				continue
 			}
-			defer commitDetailsResp.Body.Close()
+			defer commitResp.Body.Close()
 
-			if commitDetailsResp.StatusCode != http.StatusOK {
-				log.Printf("github api returned status code %d for commit %s", commitDetailsResp.StatusCode, base.SHA)
-				continue
-			}
-
-			var detail struct {
-				Stats struct {
-					Additions int `json:"additions"`
-					Deletions int `json:"deletions"`
-				} `json:"stats"`
-			}
-			if err := json.NewDecoder(commitDetailsResp.Body).Decode(&detail); err != nil {
-				log.Printf("failed to decode commit detail for %s: %v", base.SHA, err)
+			if commitResp.StatusCode != http.StatusOK {
+				log.Printf("github api returned status code %d for commits of %s on branch %s", commitResp.StatusCode, repo.Name, branch.Name)
 				continue
 			}
 
-			enrichedCommits = append(enrichedCommits, components.GitHubCommit{
-				SHA:       base.SHA,
-				HTMLURL:   base.HTMLURL,
-				Message:   base.Commit.Message,
-				Additions: detail.Stats.Additions,
-				Deletions: detail.Stats.Deletions,
-				Author:    base.Commit.Author,
-			})
+			var baseCommits []struct {
+				SHA     string `json:"sha"`
+				HTMLURL string `json:"html_url"`
+				Commit  struct {
+					Message string `json:"message"`
+					Author  struct {
+						Name string    `json:"name"`
+						Date time.Time `json:"date"`
+					} `json:"author"`
+				} `json:"commit"`
+			}
+			if err := json.NewDecoder(commitResp.Body).Decode(&baseCommits); err != nil {
+				log.Printf("failed to decode commits response for %s on branch %s: %v", repo.Name, branch.Name, err)
+				continue
+			}
 
+			for _, base := range baseCommits {
+				if base.Commit.Author.Name != "0xViva" {
+					continue
+				}
+
+				// Fetch commit stats
+				commitDetailsReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", repo.Owner.Login, repo.Name, base.SHA), nil)
+				if err != nil {
+					log.Printf("failed to create commit detail request for %s: %v", base.SHA, err)
+					continue
+				}
+				commitDetailsReq.Header.Set("Authorization", "Bearer "+token)
+
+				commitDetailsResp, err := client.Do(commitDetailsReq)
+				if err != nil {
+					log.Printf("failed to fetch commit detail for %s: %v", base.SHA, err)
+					continue
+				}
+				defer commitDetailsResp.Body.Close()
+
+				if commitDetailsResp.StatusCode != http.StatusOK {
+					log.Printf("github api returned status code %d for commit %s", commitDetailsResp.StatusCode, base.SHA)
+					continue
+				}
+
+				var detail struct {
+					Stats struct {
+						Additions int `json:"additions"`
+						Deletions int `json:"deletions"`
+					} `json:"stats"`
+				}
+				if err := json.NewDecoder(commitDetailsResp.Body).Decode(&detail); err != nil {
+					log.Printf("failed to decode commit detail for %s: %v", base.SHA, err)
+					continue
+				}
+
+				enrichedCommits = append(enrichedCommits, components.GitHubCommit{
+					SHA:       base.SHA,
+					HTMLURL:   base.HTMLURL,
+					Message:   base.Commit.Message,
+					Additions: detail.Stats.Additions,
+					Deletions: detail.Stats.Deletions,
+					Author:    base.Commit.Author,
+				})
+			}
+		}
+		for _, c := range enrichedCommits {
+			if c.Author.Date.After(repo.UpdatedAt) {
+				repo.UpdatedAt = c.Author.Date
+			}
 		}
 
 		githubRepos = append(githubRepos, components.GitHubRepo{
@@ -267,9 +293,10 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 			Commits:     enrichedCommits,
 		})
 	}
-
+	sort.Slice(githubRepos, func(i, j int) bool {
+		return githubRepos[i].UpdatedAt.After(githubRepos[j].UpdatedAt)
+	})
 	return githubRepos, nil
-
 }
 
 func render(ctx echo.Context, cmp templ.Component) error {
