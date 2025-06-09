@@ -133,9 +133,9 @@ func contactHandler(c echo.Context) error {
 
 func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
-
+	author := "0xViva"
 	req, err := http.NewRequest("GET",
-		"https://api.github.com/user/repos?affiliation=owner,collaborator,organization_member&sort=updated&direction=desc&per_page=3", nil)
+		fmt.Sprintf("https://api.github.com/user/repos?sort=pushed&direction=desc&per_page=10&author=%s", author), nil)
 	if err != nil {
 		log.Printf("failed to create repos request: %v", err)
 		return nil, fmt.Errorf("failed to create repos request: %w", err)
@@ -197,7 +197,7 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 		var enrichedCommits []components.GitHubCommit
 
 		for _, branch := range branches {
-			commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s&per_page=3", repo.Owner.Login, repo.Name, branch.Name), nil)
+			commitReq, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s&per_page=6&author=%s", repo.Owner.Login, repo.Name, branch.Name, author), nil)
 			if err != nil {
 				log.Printf("failed to create commits request for %s on branch %s: %v", repo.Name, branch.Name, err)
 				continue
@@ -229,6 +229,11 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 			}
 			if err := json.NewDecoder(commitResp.Body).Decode(&baseCommits); err != nil {
 				log.Printf("failed to decode commits response for %s on branch %s: %v", repo.Name, branch.Name, err)
+				continue
+			}
+			log.Println(repo)
+			log.Println(len(baseCommits))
+			if len(baseCommits) == 0 {
 				continue
 			}
 
@@ -283,6 +288,16 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 				repo.UpdatedAt = c.Author.Date
 			}
 		}
+		if len(enrichedCommits) == 0 {
+			continue
+		}
+		sort.Slice(enrichedCommits, func(i, j int) bool {
+			return enrichedCommits[i].Author.Date.After(enrichedCommits[j].Author.Date)
+		})
+
+		if len(enrichedCommits) > 6 {
+			enrichedCommits = enrichedCommits[:6]
+		}
 
 		githubRepos = append(githubRepos, components.GitHubRepo{
 			Name:        repo.Name,
@@ -292,6 +307,9 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 			Visibility:  repo.Visibility,
 			Commits:     enrichedCommits,
 		})
+		if len(githubRepos) == 3 {
+			break
+		}
 	}
 	sort.Slice(githubRepos, func(i, j int) bool {
 		return githubRepos[i].UpdatedAt.After(githubRepos[j].UpdatedAt)
