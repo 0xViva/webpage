@@ -6,13 +6,13 @@ templ RepoCard(repo GitHubRepo) {
 	<div class="bg-gray-800/70 rounded-lg shadow-lg border border-gray-700 p-6 mb-6 relative">
 		<img src="/assets/svg/git.svg" alt="GitHub" class="absolute top-4 right-4 w-6 h-6"/>
 		<h2 class="text-xl font-semibold text-white mb-2">
-			<a href={ templ.SafeURL(repo.HTMLURL) } target="_blank" rel="noopener noreferrer" class="hover:underline">
+			<a href={ templ.SafeURL(repo.HTMLURL) } target="_blank" rel="noopener noreferrer" class="hover:underline inline-flex gap-2">
 				{ repo.Name }
 				<span class="text-gray-500 text-md">
 					if repo.Visibility == "private" {
-						(Private)
+						<img src="/assets/svg/locked.svg" alt="(Private)" class="inline w-6 h-6"/>
 					} else {
-						(Public)
+						<img src="/assets/svg/unlocked.svg" alt="(Public)" class="inline w-6 h-6"/>
 					}
 				</span>
 			</a>
