@@ -30,10 +30,10 @@ templ Home(title string, name string) {
 				</button>
 			</div>
 			<div id="form-container" class="mt-8"></div>
-			<div id="repos" hx-get="/fetch-repos" hx-trigger="load" hx-target="#repos">
+			<div id="repos" hx-get="/browse-repos" hx-trigger="load" hx-target="#repos">
 				<button type="button" class="text-white" disabled>
 					<svg class="mr-3 size-5 animate-spin text-white" viewBox="0 0 24 24"></svg>
-					Loading…
+					Browsing GitHub Repositories…
 				</button>
 			</div>
 		</div>
