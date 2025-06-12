@@ -36,8 +36,14 @@ templ RepoCard(repo GitHubRepo) {
 							class="hover:underline"
 						>
 							if repo.Visibility == "private" {
-								for i := 0; i < len(commit.Message); i++ {
-									-
+								if len(commit.Message) > 30 {
+									for i := 0; i < 29; i++ {
+										-
+									}
+								} else {
+									for i := 0; i < len(commit.Message); i++ {
+										-
+									}
 								}
 							} else {
 								if len(commit.Message) > 30 {
