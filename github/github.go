@@ -90,6 +90,7 @@ func GetLatestRepos(token string) ([]components.GitHubRepo, error) {
 				branchWg        sync.WaitGroup
 				commitsMu       sync.Mutex
 				enrichedCommits []components.GitHubCommit
+				commitsSeen     = make(map[string]struct{})
 			)
 
 			for _, branch := range branches {
@@ -162,7 +163,10 @@ func GetLatestRepos(token string) ([]components.GitHubRepo, error) {
 						}
 
 						commitsMu.Lock()
-						enrichedCommits = append(enrichedCommits, commit)
+						if _, exists := commitsSeen[base.SHA]; !exists {
+							enrichedCommits = append(enrichedCommits, commit)
+							commitsSeen[base.SHA] = struct{}{}
+						}
 						commitsMu.Unlock()
 					}
 				}()
