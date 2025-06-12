@@ -23,34 +23,28 @@ templ RepoCard(repo GitHubRepo) {
 			<p class="text-gray-400 mb-4">{ repo.Description }</p>
 		}
 		<p class="text-gray-500 text-sm mb-4">Updated: { repo.UpdatedAt.Format("06-01-02 15:04") }</p>
-		//<h3 class="text-lg font-medium text-white mb-2">Commits:</h3>
 		<ul class="space-y-2 text-gray-400">
 			for _, commit := range repo.Commits {
 				<li class="flex items-start">
 					<img src="/assets/svg/commit.svg" alt="commit icon" class="w-4 h-4 mt-1"/>
-					<div>
+					<div class="flex-grow min-w-0">
+						// Added flex-grow and min-w-0
 						<a
 							href={ templ.SafeURL(commit.HTMLURL) }
 							target="_blank"
 							rel="noopener noreferrer"
-							class="hover:underline"
+							class="hover:underline block"
 						>
 							if repo.Visibility == "private" {
-								if len(commit.Message) > 30 {
-									for i := 0; i < 29; i++ {
+								<span class="truncate whitespace-nowrap overflow-hidden">
+									for i := 0; i < len(commit.Message) && i < 40; i++ {
 										-
 									}
-								} else {
-									for i := 0; i < len(commit.Message); i++ {
-										-
-									}
-								}
+								</span>
 							} else {
-								if len(commit.Message) > 30 {
-									{ commit.Message[:29] }...
-								} else {
+								<span class="truncate whitespace-nowrap overflow-hidden">
 									{ commit.Message }
-								}
+								</span>
 							}
 						</a>
 						<div class="text-gray-500 text-sm">
@@ -61,6 +55,6 @@ templ RepoCard(repo GitHubRepo) {
 				</li>
 			}
 		</ul>
-		<img src="/assets/svg/repo.svg" alt="Git" class="absolute bottom-4 right-4 w-10 w-10"/>
+		<img src="/assets/svg/repo.svg" alt="Git" class="absolute bottom-4 right-4 w-10 h-10"/>
 	</div>
 }
