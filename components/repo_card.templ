@@ -41,13 +41,13 @@ templ RepoCard(repo GitHubRepo) {
 							class="hover:underline block"
 						>
 							if repo.Visibility == "private" {
-								<span class="truncate whitespace-nowrap overflow-hidden">
+								<span>
 									for i := 0; i < len(commit.Message) && i < 40; i++ {
 										-
 									}
 								</span>
 							} else {
-								<span class="truncate whitespace-nowrap overflow-hidden">
+								<span>
 									{ commit.Message }
 								</span>
 							}
