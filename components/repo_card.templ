@@ -14,6 +14,11 @@ templ RepoCard(repo GitHubRepo) {
 					} else {
 						<img src="/assets/svg/unlocked.svg" alt="(Public)" class="inline w-6 h-6"/>
 					}
+					if repo.Owner.Login == "0xViva" {
+						<img src="/assets/svg/personal.svg" alt="(Personal)" class="inline w-6 h-6"/>
+					} else {
+						<img src="/assets/svg/collab.svg" alt="(Collaborator)" class="inline w-6 h-6"/>
+					}
 				</span>
 			</a>
 		</h2>

@@ -315,6 +315,7 @@ func getLatestRepos(token string) ([]components.GitHubRepo, error) {
 				Description: repo.Description,
 				UpdatedAt:   repo.UpdatedAt,
 				Visibility:  repo.Visibility,
+				Owner:       repo.Owner,
 				Commits:     enrichedCommits,
 			})
 			mu.Unlock()

@@ -3,35 +3,38 @@ package components
 import "time"
 
 templ RepoContainer(repos []GitHubRepo) {
-if len(repos) > 0 {
-<div class="mt-10 text-left">
-  <h2 class="text-2xl font-bold text-white mb-6 text-center">Latest Projects</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    for _, repo := range repos {
-    @RepoCard(repo)
-    }
-  </div>
-</div>
-}
+	if len(repos) > 0 {
+		<div class="mt-10 text-left">
+			<h2 class="text-2xl font-bold text-white mb-6 text-center">Latest Projects</h2>
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				for _, repo := range repos {
+					@RepoCard(repo)
+				}
+			</div>
+		</div>
+	}
 }
 
 type GitHubRepo struct {
-Name string `json:"name"`
-HTMLURL string `json:"html_url"`
-Description string `json:"description"`
-UpdatedAt time.Time `json:"updated_at"`
-Visibility string `json:"visibility"`
-Commits []GitHubCommit `json:"commits"`
+	Name        string    `json:"name"`
+	HTMLURL     string    `json:"html_url"`
+	Description string    `json:"description"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Visibility  string    `json:"visibility"`
+	Owner       struct {
+		Login string `json:"login"`
+	} `json:"owner"`
+	Commits []GitHubCommit `json:"commits"`
 }
 
 type GitHubCommit struct {
-SHA string `json:"sha"`
-HTMLURL string `json:"html_url"`
-Message string `json:"message"`
-Additions int `json:"additions"`
-Deletions int `json:"deletions"`
-Author struct {
-Name string `json:"name"`
-Date time.Time `json:"date"`
-} `json:"author"`
+	SHA       string `json:"sha"`
+	HTMLURL   string `json:"html_url"`
+	Message   string `json:"message"`
+	Additions int    `json:"additions"`
+	Deletions int    `json:"deletions"`
+	Author    struct {
+		Name string    `json:"name"`
+		Date time.Time `json:"date"`
+	} `json:"author"`
 }
