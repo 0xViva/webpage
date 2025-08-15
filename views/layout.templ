@@ -3,31 +3,30 @@ package views
 import "github.com/0xViva/webpage/components"
 
 templ Layout(title string) {
-<html>
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/style/output.css" />
-  <link rel="icon" href="assets/svg/kermit.svg" type="image/svg+xml" />
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-  <title>{ title }</title>
-</head>
-
-<body hx-boost="true"
-  style="background-image: url('assets/png/earth.png'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
-  <div class="bg-gray-800/70 max-w-[100rem] flex flex-col mx-auto size-full">
-    <!-- ========== HEADER ========== -->
-    @components.Header()
-    <!-- ========== END HEADER ========== -->
-    <main id="content">
-      { children... }
-    </main>
-    <!-- ========== FOOTER ========== -->
-    @components.Footer()
-    <!-- ========== END FOOTER ========== -->
-  </div>
-</body>
-
-</html>
+	<html>
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<link rel="stylesheet" href="/style/output.css"/>
+			<link rel="icon" href="assets/svg/kermit.svg" type="image/svg+xml"/>
+			<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+			<title>{ title }</title>
+		</head>
+		<body
+			hx-boost="true"
+			style="background-image: url('assets/jpg/norway.jpg'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;"
+		>
+			<div class="bg-gray-800/70 max-w-[100rem] flex flex-col mx-auto size-full">
+				<!-- ========== HEADER ========== -->
+				@components.Header()
+				<!-- ========== END HEADER ========== -->
+				<main id="content">
+					{ children... }
+				</main>
+				<!-- ========== FOOTER ========== -->
+				@components.Footer()
+				<!-- ========== END FOOTER ========== -->
+			</div>
+		</body>
+	</html>
 }
