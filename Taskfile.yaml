@@ -15,7 +15,7 @@ tasks:
   dev:
     run: always
     cmds:
-      - $HOME/go/bin/air
+      - air
 
   build:
     deps:
@@ -44,5 +44,5 @@ tasks:
       - style/input.css
     cmds:
       - $HOME/tailwindcss -i style/input.css -o style/output.css
-      - $HOME/go/bin/templ generate
+      - templ generate
       - go generate ./...

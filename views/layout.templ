@@ -8,15 +8,11 @@ templ Layout(title string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="stylesheet" href="/style/output.css"/>
-			<link rel="icon" href="assets/svg/kermit.svg" type="image/svg+xml"/>
 			<script src="https://unpkg.com/htmx.org@2.0.4"></script>
 			<title>{ title }</title>
 		</head>
-		<body
-			hx-boost="true"
-			style="background-image: url('assets/jpg/norway.jpg'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;"
-		>
-			<div class="bg-gray-800/70 max-w-[100rem] flex flex-col mx-auto size-full">
+		<body hx-boost="true" class="bg-gray-900/95">
+			<div class="max-w-400 flex flex-col mx-auto size-full">
 				<!-- ========== HEADER ========== -->
 				@components.Header()
 				<!-- ========== END HEADER ========== -->
