@@ -43,9 +43,8 @@ func main() {
 
 func homeView(c echo.Context) error {
 	host := c.Request().Host
-	title := getNameFromDomain(host) + "'s Website"
 	name := "August"
-
+	title := getNameFromDomain(host) + "'s Website"
 	return render(c, views.Home(title, name))
 
 }
