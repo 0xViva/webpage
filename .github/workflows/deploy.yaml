@@ -40,7 +40,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$VPS_IP" >> ~/.ssh/known_hosts
 
-          ssh -v webpage@"$VPS_IP" "
+          ssh -v august@"$VPS_IP" "
           docker login -u '${{ secrets.DOCKER_USERNAME }}' -p '${{ secrets.DOCKER_ACCESS_TOKEN }}' &&
           docker pull ${{ secrets.DOCKER_USERNAME }}/webpage:latest &&
           docker stop webpage || true &&
