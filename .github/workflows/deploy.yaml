@@ -48,7 +48,7 @@ jobs:
             -e TO_EMAIL='${{ secrets.TO_EMAIL }}' \
             -e EMAIL_PASSWORD='${{ secrets.EMAIL_PASSWORD }}' \
             -e GITHUB_TOKEN='${{ secrets.PAT }}' \
-            -d --name webpage -p 10010:8080 --restart unless-stopped \
+            -d --name webpage -p 10080:8080 --restart unless-stopped \
             ${{ secrets.DOCKER_USERNAME }}/webpage:latest
           "
 
