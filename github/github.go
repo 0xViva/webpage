@@ -62,10 +62,31 @@ func GetLatestRepos(token string) ([]components.GitHubRepo, error) {
 
 	githubRepos := make([]components.GitHubRepo, 0, len(repos))
 	for _, repo := range repos {
+
 		repo := repo // capture loop variable
 		repoWg.Add(1)
 		go func() {
 			defer repoWg.Done()
+
+			languagesReq, _ := http.NewRequest(
+				"GET",
+				fmt.Sprintf("https://api.github.com/repos/%s/%s/languages", repo.Owner.Login, repo.Name),
+				nil,
+			)
+			languagesReq.Header.Set("Authorization", "Bearer "+token)
+
+			languagesResp, err := client.Do(languagesReq)
+			if err != nil {
+				log.Printf("failed to fetch languages for %s: %v", repo.Name, err)
+				return
+			}
+			defer languagesResp.Body.Close()
+
+			languages := make(map[string]int)
+			if err := json.NewDecoder(languagesResp.Body).Decode(&languages); err != nil {
+				log.Printf("failed to decode languages for %s: %v", repo.Name, err)
+				return
+			}
 
 			// Fetch branches
 			branchesReq, _ := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/branches", repo.Owner.Login, repo.Name), nil)
@@ -84,6 +105,11 @@ func GetLatestRepos(token string) ([]components.GitHubRepo, error) {
 			if err := json.NewDecoder(branchesResp.Body).Decode(&branches); err != nil {
 				log.Printf("failed to decode branches for %s: %v", repo.Name, err)
 				return
+			}
+
+			branchNames := make([]string, 0, len(branches))
+			for _, b := range branches {
+				branchNames = append(branchNames, b.Name)
 			}
 
 			var (
@@ -202,6 +228,8 @@ func GetLatestRepos(token string) ([]components.GitHubRepo, error) {
 				Visibility:  repo.Visibility,
 				Owner:       repo.Owner,
 				Commits:     enrichedCommits,
+				Branches:    branchNames,
+				Languages:   languages,
 			})
 			mu.Unlock()
 		}()

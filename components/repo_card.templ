@@ -1,12 +1,20 @@
 package components
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 templ RepoCard(repo GitHubRepo) {
 	<div class="bg-gray-800/70 rounded-lg shadow-lg border border-gray-700 p-6 mb-6 relative">
 		<img src="/assets/svg/git.svg" alt="GitHub" class="absolute top-4 right-4 w-6 h-6"/>
 		<h2 class="text-xl font-semibold text-white mb-2">
-			<a href={ templ.SafeURL(repo.HTMLURL) } target="_blank" rel="noopener noreferrer" class="hover:underline inline-flex gap-2">
+			<a
+				href={ templ.SafeURL(repo.HTMLURL) }
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:underline inline-flex gap-2"
+			>
 				{ repo.Name }
 				<span class="text-gray-500 text-md">
 					if repo.Visibility == "private" {
@@ -40,11 +48,10 @@ templ RepoCard(repo GitHubRepo) {
 							rel="noopener noreferrer"
 							class="hover:underline block"
 						>
+							// Truncate message to 40 chars for private repos
 							if repo.Visibility == "private" {
 								<span>
-									for i := 0; i < len(commit.Message) && i < 40; i++ {
-										-
-									}
+									{ strings.Repeat("-", min(len(commit.Message), 40)) }
 								</span>
 							} else {
 								<span>

@@ -24,7 +24,9 @@ type GitHubRepo struct {
 	Owner       struct {
 		Login string `json:"login"`
 	} `json:"owner"`
-	Commits []GitHubCommit `json:"commits"`
+	Commits   []GitHubCommit `json:"commits"`
+	Branches  []string       `json:"branches"`
+	Languages map[string]int `json:"languages"`
 }
 
 type GitHubCommit struct {
