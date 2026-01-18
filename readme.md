@@ -69,20 +69,18 @@ This project is open source and available under the MIT license.
 add this file to your static assets:
 `assets/js/augustg-dev-badge.js`
 
-this one here: https://github.com/0xViva/webpage/blob/master/assets/js/augustg-dev-badge.js
+this one here:
+https://github.com/0xViva/webpage/blob/master/assets/js/augustg-dev-badge.js
 
 or get it from this url via <script> (at your own risk):
-
 https://raw.githubusercontent.com/0xViva/webpage/refs/heads/master/assets/js/augustg-dev-badge.js
 
-```
-<augustg-dev-badge></augustg-dev-badge>
-<script src="/assets/js/augustg-dev-badge.js"></script>
-```
-
 Badge is using this font:
-
 https://github.com/0xViva/webpage/blob/master/assets/fonts/JetBrainsMonoNerdFontMono-Regular.ttf
 
-
+then add it all together in your desired html location:
+```
+<augustg-dev-badge></augustg-dev-badge>
+<script src="/whatever/location/you/use/augustg-dev-badge.js"></script>
+```
 
