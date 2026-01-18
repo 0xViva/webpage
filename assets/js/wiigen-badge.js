@@ -31,6 +31,7 @@ class Wiigen extends HTMLElement {
             font-size: 1rem;
             text-decoration: none;
             outline: none; 
+            background: black;
   
             .l, .r {
                 display: flex;
