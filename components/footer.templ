@@ -1,7 +1,23 @@
 package components
 
 templ Footer() {
-<footer class="mt-auto text-center py-5">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"></div>
-</footer>
+	<footer class="mt-auto text-center py-5">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-center text-gray-400">
+			Some places and people I like:
+			<div class="flex flex-wrap items-center justify-center gap-2 sm:flex-row flex-col">
+				<norsk-programmering-badge></norsk-programmering-badge>
+				<frk-frontend-badge></frk-frontend-badge>
+				<a href="https://pysj.party/">
+					<img
+						src="assets/png/badge.png"
+						width="210"
+						height="30"
+						alt="pysjparty, en vebbring for norske hjemmesider"
+					/>
+				</a>
+			</div>
+		</div>
+		<script src="/assets/js/frk-frontend-badge.js"></script>
+		<script src="/assets/js/norsk-programmering-badge.js"></script>
+	</footer>
 }

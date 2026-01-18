@@ -1,7 +1,7 @@
 package components
 
 templ Header() {
-	<header class="mb-auto flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full text-sm py-4">
+	<header class="relative mb-auto flex flex-wrap z-50 w-full text-sm py-4">
 		<nav class="w-full px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
 			<div class="flex items-center justify-between">
 				<a
@@ -11,6 +11,8 @@ templ Header() {
 				>
 					<img src="/assets/jpg/august.jpg" alt="Personal profile picture" class="profile-image"/>
 				</a>
+				<augustg-dev-badge class="absolute top-4 right-4 scale-75 sm:scale-90 md:scale-100"></augustg-dev-badge>
+				<script src="/assets/js/augustg-dev-badge.js"></script>
 			</div>
 			<div
 				id="hs-navbar-cover-page"

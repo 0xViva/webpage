@@ -63,3 +63,13 @@ Built with a multi-stage build:
 ## License
 
 This project is open source and available under the MIT license.
+
+## Want my badge? No problems:
+
+add this file to your static assets:
+`assets/js/augustg-dev-badge.js`
+
+```
+<augustg-dev-badge></augustg-dev-badge>
+<script src="/assets/js/augustg-dev-badge.js"></script>
+```
