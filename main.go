@@ -43,7 +43,7 @@ func main() {
 
 func homeView(c echo.Context) error {
 	name := "August Justinus Gran"
-	title := name
+	title := "augustg.dev | AJG's Home"
 	return render(c, views.Home(title, name))
 
 }
