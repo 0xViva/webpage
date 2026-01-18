@@ -73,3 +73,10 @@ add this file to your static assets:
 <augustg-dev-badge></augustg-dev-badge>
 <script src="/assets/js/augustg-dev-badge.js"></script>
 ```
+
+Badge is using this font:
+
+https://github.com/0xViva/webpage/blob/master/assets/fonts/JetBrainsMonoNerdFontMono-Regular.ttf
+
+
+
