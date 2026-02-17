@@ -11,6 +11,15 @@ templ Footer() {
 				<a href="https://pysj.party/">
 					<img src="https://pysj.party/images/badge.png" width="210" height="30"/>
 				</a>
+				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-center text-gray-400">
+					See what others are saying:
+					<webmention-list
+						endpoint="https://august.andanti.no/webmention"
+						heading="See what others are saying"
+						hide-when-empty="true"
+					></webmention-list>
+					<webmention-send endpoint="https://august.andanti.no/webmention"></webmention-send>
+				</div>
 			</div>
 			<br/>
 			c 1998-2026
@@ -18,5 +27,6 @@ templ Footer() {
 		<script src="https://frkfrontend.no/frk-frontend-badge.js"></script>
 		<script src="https://new.jpwiig.dev/js/badge/wiigen-badge.js"></script>
 		<script src="https://cdn.jsdelivr.net/gh/Maritims/norsk-programmering-badge@main/norsk-programmering-badge.js"></script>
+		<script src="assets/js/webmention-web-components.js" type="module"></script>
 	</footer>
 }
